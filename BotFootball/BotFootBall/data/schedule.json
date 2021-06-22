@@ -1420,7 +1420,7 @@
       "matchday": 2,
       "stage": "GROUP_STAGE",
       "group": "Group C",
-      "lastUpdated": "2021-06-18T00:52:06Z",
+      "lastUpdated": "2021-06-22T11:41:34Z",
       "odds": { "msg": "Activate Odds-Package in User-Panel to retrieve odds." },
       "score": {
         "winner": "HOME_TEAM",
@@ -1502,7 +1502,7 @@
       "matchday": 2,
       "stage": "GROUP_STAGE",
       "group": "Group E",
-      "lastUpdated": "2021-06-18T23:04:45Z",
+      "lastUpdated": "2021-06-22T11:41:34Z",
       "odds": { "msg": "Activate Odds-Package in User-Panel to retrieve odds." },
       "score": {
         "winner": "HOME_TEAM",
@@ -1584,7 +1584,7 @@
       "matchday": 2,
       "stage": "GROUP_STAGE",
       "group": "Group D",
-      "lastUpdated": "2021-06-18T23:04:45Z",
+      "lastUpdated": "2021-06-22T11:41:34Z",
       "odds": { "msg": "Activate Odds-Package in User-Panel to retrieve odds." },
       "score": {
         "winner": "DRAW",
@@ -1666,7 +1666,7 @@
       "matchday": 2,
       "stage": "GROUP_STAGE",
       "group": "Group D",
-      "lastUpdated": "2021-06-18T23:04:45Z",
+      "lastUpdated": "2021-06-22T11:41:34Z",
       "odds": { "msg": "Activate Odds-Package in User-Panel to retrieve odds." },
       "score": {
         "winner": "DRAW",
@@ -1748,7 +1748,7 @@
       "matchday": 2,
       "stage": "GROUP_STAGE",
       "group": "Group F",
-      "lastUpdated": "2021-06-20T02:59:08Z",
+      "lastUpdated": "2021-06-22T11:41:34Z",
       "odds": { "msg": "Activate Odds-Package in User-Panel to retrieve odds." },
       "score": {
         "winner": "DRAW",
@@ -1830,7 +1830,7 @@
       "matchday": 2,
       "stage": "GROUP_STAGE",
       "group": "Group F",
-      "lastUpdated": "2021-06-20T02:59:08Z",
+      "lastUpdated": "2021-06-22T11:41:34Z",
       "odds": { "msg": "Activate Odds-Package in User-Panel to retrieve odds." },
       "score": {
         "winner": "AWAY_TEAM",
@@ -1912,7 +1912,7 @@
       "matchday": 2,
       "stage": "GROUP_STAGE",
       "group": "Group E",
-      "lastUpdated": "2021-06-20T02:59:08Z",
+      "lastUpdated": "2021-06-22T11:41:34Z",
       "odds": { "msg": "Activate Odds-Package in User-Panel to retrieve odds." },
       "score": {
         "winner": "DRAW",
@@ -1994,7 +1994,7 @@
       "matchday": 3,
       "stage": "GROUP_STAGE",
       "group": "Group A",
-      "lastUpdated": "2021-06-21T02:59:04Z",
+      "lastUpdated": "2021-06-22T11:41:34Z",
       "odds": { "msg": "Activate Odds-Package in User-Panel to retrieve odds." },
       "score": {
         "winner": "HOME_TEAM",
@@ -2076,7 +2076,7 @@
       "matchday": 3,
       "stage": "GROUP_STAGE",
       "group": "Group A",
-      "lastUpdated": "2021-06-21T10:10:34Z",
+      "lastUpdated": "2021-06-22T11:41:34Z",
       "odds": { "msg": "Activate Odds-Package in User-Panel to retrieve odds." },
       "score": {
         "winner": "HOME_TEAM",
@@ -2158,7 +2158,7 @@
       "matchday": 3,
       "stage": "GROUP_STAGE",
       "group": "Group C",
-      "lastUpdated": "2021-06-22T02:57:56Z",
+      "lastUpdated": "2021-06-22T11:41:34Z",
       "odds": { "msg": "Activate Odds-Package in User-Panel to retrieve odds." },
       "score": {
         "winner": "AWAY_TEAM",
@@ -2240,7 +2240,7 @@
       "matchday": 3,
       "stage": "GROUP_STAGE",
       "group": "Group C",
-      "lastUpdated": "2021-06-22T02:57:56Z",
+      "lastUpdated": "2021-06-22T11:41:34Z",
       "odds": { "msg": "Activate Odds-Package in User-Panel to retrieve odds." },
       "score": {
         "winner": "AWAY_TEAM",
@@ -2322,7 +2322,7 @@
       "matchday": 3,
       "stage": "GROUP_STAGE",
       "group": "Group B",
-      "lastUpdated": "2021-06-22T02:57:56Z",
+      "lastUpdated": "2021-06-22T11:41:34Z",
       "odds": { "msg": "Activate Odds-Package in User-Panel to retrieve odds." },
       "score": {
         "winner": "AWAY_TEAM",
@@ -2404,7 +2404,7 @@
       "matchday": 3,
       "stage": "GROUP_STAGE",
       "group": "Group B",
-      "lastUpdated": "2021-06-22T02:57:56Z",
+      "lastUpdated": "2021-06-22T11:41:34Z",
       "odds": { "msg": "Activate Odds-Package in User-Panel to retrieve odds." },
       "score": {
         "winner": "AWAY_TEAM",
@@ -2680,7 +2680,44 @@
         "id": 760,
         "name": "Spain"
       },
-      "referees": []
+      "referees": [
+        {
+          "id": 9558,
+          "name": "Björn Kuipers",
+          "role": "REFEREE",
+          "nationality": "Netherlands"
+        },
+        {
+          "id": 9559,
+          "name": "Sander van Roekel",
+          "role": "ASSISTANT_REFEREE_N1",
+          "nationality": "Netherlands"
+        },
+        {
+          "id": 9560,
+          "name": "Erwin Zeinstra",
+          "role": "ASSISTANT_REFEREE_N2",
+          "nationality": "Netherlands"
+        },
+        {
+          "id": 25786,
+          "name": "Stéphanie Frappart",
+          "role": "FOURTH_OFFICIAL",
+          "nationality": "France"
+        },
+        {
+          "id": 15152,
+          "name": "Pol van Boekel",
+          "role": "VIDEO_ASSISANT_REFEREE_N1",
+          "nationality": "Netherlands"
+        },
+        {
+          "id": 43902,
+          "name": "Kevin Blom",
+          "role": "VIDEO_ASSISANT_REFEREE_N2",
+          "nationality": "Netherlands"
+        }
+      ]
     },
     {
       "id": 285447,
@@ -2725,7 +2762,44 @@
         "id": 794,
         "name": "Poland"
       },
-      "referees": []
+      "referees": [
+        {
+          "id": 11605,
+          "name": "Michael Oliver",
+          "role": "REFEREE",
+          "nationality": "England"
+        },
+        {
+          "id": 11564,
+          "name": "Stuart Burt",
+          "role": "ASSISTANT_REFEREE_N1",
+          "nationality": "England"
+        },
+        {
+          "id": 11488,
+          "name": "Simon Bennett",
+          "role": "ASSISTANT_REFEREE_N2",
+          "nationality": "England"
+        },
+        {
+          "id": 11580,
+          "name": "Anthony Taylor",
+          "role": "FOURTH_OFFICIAL",
+          "nationality": "England"
+        },
+        {
+          "id": 11443,
+          "name": "Chris Kavanagh",
+          "role": "VIDEO_ASSISANT_REFEREE_N1",
+          "nationality": "England"
+        },
+        {
+          "id": 57526,
+          "name": "Christian Dingert",
+          "role": "VIDEO_ASSISANT_REFEREE_N2",
+          "nationality": "Germany"
+        }
+      ]
     },
     {
       "id": 285452,
@@ -2770,7 +2844,44 @@
         "id": 827,
         "name": "Hungary"
       },
-      "referees": []
+      "referees": [
+        {
+          "id": 43938,
+          "name": "Sergey Karasev",
+          "role": "REFEREE",
+          "nationality": "Russia"
+        },
+        {
+          "id": 43850,
+          "name": "Igor Demeshko",
+          "role": "ASSISTANT_REFEREE_N1",
+          "nationality": "Russia"
+        },
+        {
+          "id": 36197,
+          "name": "Maksim Gavrilin",
+          "role": "ASSISTANT_REFEREE_N2",
+          "nationality": "Russia"
+        },
+        {
+          "id": 43899,
+          "name": "Danny Makkelie",
+          "role": "FOURTH_OFFICIAL",
+          "nationality": "Netherlands"
+        },
+        {
+          "id": 11054,
+          "name": "Massimiliano Irrati",
+          "role": "VIDEO_ASSISANT_REFEREE_N1",
+          "nationality": "Italy"
+        },
+        {
+          "id": 11060,
+          "name": "Marco Di Bello",
+          "role": "VIDEO_ASSISANT_REFEREE_N2",
+          "nationality": "Italy"
+        }
+      ]
     },
     {
       "id": 285453,
@@ -2815,7 +2926,44 @@
         "id": 773,
         "name": "France"
       },
-      "referees": []
+      "referees": [
+        {
+          "id": 43869,
+          "name": "Antonio Matéu Lahoz",
+          "role": "REFEREE",
+          "nationality": "Spain"
+        },
+        {
+          "id": 134,
+          "name": "Pau Cebrián Devis",
+          "role": "ASSISTANT_REFEREE_N1",
+          "nationality": "Spain"
+        },
+        {
+          "id": 82,
+          "name": "Roberto Díaz Pérez",
+          "role": "ASSISTANT_REFEREE_N2",
+          "nationality": "Spain"
+        },
+        {
+          "id": 36314,
+          "name": "Ovidiu Hațegan",
+          "role": "FOURTH_OFFICIAL",
+          "nationality": "Romania"
+        },
+        {
+          "id": 15625,
+          "name": "Alejandro Hernández",
+          "role": "VIDEO_ASSISANT_REFEREE_N1",
+          "nationality": "Spain"
+        },
+        {
+          "id": 106,
+          "name": "José Sánchez",
+          "role": "VIDEO_ASSISANT_REFEREE_N2",
+          "nationality": "Spain"
+        }
+      ]
     },
     {
       "id": 325091,
@@ -2830,7 +2978,7 @@
       "matchday": 4,
       "stage": "LAST_16",
       "group": null,
-      "lastUpdated": "2021-05-16T12:52:13Z",
+      "lastUpdated": "2021-06-22T11:41:33Z",
       "odds": { "msg": "Activate Odds-Package in User-Panel to retrieve odds." },
       "score": {
         "winner": null,
@@ -2853,12 +3001,12 @@
         }
       },
       "homeTeam": {
-        "id": null,
-        "name": null
+        "id": 833,
+        "name": "Wales"
       },
       "awayTeam": {
-        "id": null,
-        "name": null
+        "id": 782,
+        "name": "Denmark"
       },
       "referees": []
     },
@@ -2875,7 +3023,7 @@
       "matchday": 4,
       "stage": "LAST_16",
       "group": null,
-      "lastUpdated": "2021-05-16T12:52:08Z",
+      "lastUpdated": "2021-06-22T11:41:33Z",
       "odds": { "msg": "Activate Odds-Package in User-Panel to retrieve odds." },
       "score": {
         "winner": null,
@@ -2898,12 +3046,12 @@
         }
       },
       "homeTeam": {
-        "id": null,
-        "name": null
+        "id": 784,
+        "name": "Italy"
       },
       "awayTeam": {
-        "id": null,
-        "name": null
+        "id": 816,
+        "name": "Austria"
       },
       "referees": []
     },
@@ -2920,7 +3068,7 @@
       "matchday": 4,
       "stage": "LAST_16",
       "group": null,
-      "lastUpdated": "2021-05-16T12:52:03Z",
+      "lastUpdated": "2021-06-22T11:41:33Z",
       "odds": { "msg": "Activate Odds-Package in User-Panel to retrieve odds." },
       "score": {
         "winner": null,
@@ -2943,8 +3091,8 @@
         }
       },
       "homeTeam": {
-        "id": null,
-        "name": null
+        "id": 8601,
+        "name": "Netherlands"
       },
       "awayTeam": {
         "id": null,
@@ -2965,7 +3113,7 @@
       "matchday": 4,
       "stage": "LAST_16",
       "group": null,
-      "lastUpdated": "2021-05-16T12:51:58Z",
+      "lastUpdated": "2021-06-22T11:41:33Z",
       "odds": { "msg": "Activate Odds-Package in User-Panel to retrieve odds." },
       "score": {
         "winner": null,
@@ -2988,8 +3136,8 @@
         }
       },
       "homeTeam": {
-        "id": null,
-        "name": null
+        "id": 805,
+        "name": "Belgium"
       },
       "awayTeam": {
         "id": null,
@@ -3235,7 +3383,7 @@
       "matchday": 5,
       "stage": "QUARTER_FINAL",
       "group": null,
-      "lastUpdated": "2021-05-28T16:20:17Z",
+      "lastUpdated": "2021-06-22T11:41:32Z",
       "odds": { "msg": "Activate Odds-Package in User-Panel to retrieve odds." },
       "score": {
         "winner": null,

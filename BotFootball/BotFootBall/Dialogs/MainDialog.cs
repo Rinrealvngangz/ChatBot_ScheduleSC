@@ -33,7 +33,7 @@ namespace BotFootBall.Dialogs
         private async Task<DialogTurnResult> IntroStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             await stepContext.Context.SendActivityAsync(
-                MessageFactory.Text("Chọn đội bóng bạn muốn xem ?"), cancellationToken);
+                MessageFactory.Text("Chọn lịch thi đấu muốn xem ?"), cancellationToken);
 
             List<string> operationList = new List<string> { "Lịch euro hôm nay", "Lịch euro trong tuần", "Lịch euro ngày mai" };
 
