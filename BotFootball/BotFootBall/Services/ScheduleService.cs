@@ -11,6 +11,10 @@ using System.Runtime.Serialization.Json;
 using Newtonsoft.Json.Linq;
 using BotFootBall.Models;
 using Newtonsoft.Json;
+using Microsoft.Bot.Builder;
+using System.Threading;
+using Microsoft.Bot.Builder.Dialogs;
+using Microsoft.Bot.Schema;
 
 namespace BotFootBall.Services
 {
@@ -18,7 +22,17 @@ namespace BotFootBall.Services
     {
       private readonly string  key_secret = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("Token")["key"];
 
+      private static string vnTimeZoneKey = "SE Asia Standard Time";
+
+      private static  TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById(vnTimeZoneKey);
+        private List<string> stringResultSchedule;
+
         private readonly string Location = "../BotFootBall/data/schedule.json";
+
+        public ScheduleService()
+        {
+            DisPlaySchedule();
+        }
         public async void GetJsonSchedule()
         {
            
@@ -31,8 +45,7 @@ namespace BotFootBall.Services
 
             request.Method = HttpMethod.Get;
             request.Headers.Add("X-Auth-Token", key_secret);
-            if(new FileInfo(Location).Length == 0)
-            {
+          
                 HttpResponseMessage response = await httpClient.SendAsync(request);
 
                 var responseString = await response.Content.ReadAsStringAsync();
@@ -51,18 +64,16 @@ namespace BotFootBall.Services
                         stream.Close();
                         file.Dispose();
                     }
-
-                 
                     //   var JSONresult = JsonConvert.SerializeObject( stream , Formatting.Indented);
                     //  File.WriteAllText(@"D:\euro2021.json", JSONresult);
-
                 }
-            }
+            
         
         }
 
-        public List<MatchesModel> GetScheduleDay()
+        public List<MatchesModel> GetScheduleDay(DateTime dateTime)
         {
+             GetJsonSchedule();
             ScheduleModel scheduleModel = new ScheduleModel();
             scheduleModel.ScheduleMatch = new List<MatchesModel>();
             using (StreamReader streamReader = new StreamReader(Location))
@@ -70,7 +81,7 @@ namespace BotFootBall.Services
                 string json = streamReader.ReadToEnd();
                 var  schedule =  JObject.Parse(json)["matches"];
                 int dem = 0;
-                foreach(var item in schedule)
+                foreach(var item in schedule.Where(x=> FormatDate(x.Value<DateTime>("utcDate")) == FormatDate(dateTime)))
                 {
                     MatchesModel matchesModel = new MatchesModel();
                   
@@ -79,24 +90,84 @@ namespace BotFootBall.Services
                     if (fulltimeObj["awayTeam"].Type != JTokenType.Null && fulltimeObj["awayTeam"].Type != JTokenType.Null)
                     {
                         FullTimeModel fullTimeModel = new FullTimeModel();
-                        fullTimeModel.AwayTeam = fulltimeObj.Value<int>("awayTeam");
+                       fullTimeModel.AwayTeam = fulltimeObj.Value<int>("awayTeam");
                         fullTimeModel.HomeTeam = fulltimeObj.Value<int>("homeTeam");
                         matchesModel.FullTime = fullTimeModel;
                     }
                     matchesModel.Group = item.Value<string>("group");
-                    matchesModel.UctDate = item.Value<DateTime>("utcDate");
+                    matchesModel.UctDate = FormatTimeZoneVietNam(item.Value<DateTime>("utcDate"));
                     matchesModel.HomeTeam = item["homeTeam"].Value<string>("name");
                     matchesModel.AwayTeam = item["awayTeam"].Value<string>("name");
                     scheduleModel.ScheduleMatch.Add(matchesModel);
                     dem++;
-                    if(dem > 2)
+                    if(dem > 6)
                     {
                         break;
                     }
                 }
-
+                streamReader.Close();
+                streamReader.Dispose();
             }
             return scheduleModel.ScheduleMatch;
+        }
+        public  void DisPlayScheduleByStep(WaterfallStepContext stepContext , CancellationToken cancellation )
+        {
+            stringResultSchedule.ForEach(async x => await stepContext.Context.SendActivityAsync(MessageFactory.Text(x), cancellation));
+        }
+
+        public  void DisPlayScheduleByText(ITurnContext<IMessageActivity> stepContext, CancellationToken cancellation)
+        {
+            stringResultSchedule.ForEach(async x => await stepContext.SendActivityAsync(MessageFactory.Text(x), cancellation));
+            
+        }
+        private string StringDisplaySchedule(dynamic item)
+        {
+          
+           var hasFullTime = string.Empty;
+            var team = string.Empty;
+            if (item.FullTime != null)
+            {
+                hasFullTime = $"{item.FullTime.HomeTeam} - {item.FullTime.AwayTeam}";
+            }
+            var group = $"{item.Group}\n\n";
+            if (!hasFullTime.Equals(string.Empty))
+            {
+                team = string.Concat($"(Home) {item.HomeTeam}  {hasFullTime} ", $" {item.AwayTeam} (Away) \n\n");
+            }
+            else
+            {
+                team = string.Concat($"(Home) {item.HomeTeam} vs", $" (Away) {item.AwayTeam}\n\n");
+            }
+
+            var timeMatch = string.Concat(team, $"     ({item.UctDate})");
+           
+            var result = string.Concat(group, timeMatch);
+            return result;
+        }
+        private  void DisPlaySchedule()
+        {
+            
+            DateTime currentDateTime = DateTime.UtcNow;
+            List<MatchesModel> Listmatches = GetScheduleDay(currentDateTime);
+            stringResultSchedule = new List<string>();
+            foreach (var item in Listmatches)
+            {
+                stringResultSchedule.Add(StringDisplaySchedule(item));
+             
+            }
+        
+        }
+        private DateTime FormatTimeZoneVietNam(DateTime dateTime)
+        {
+         
+            DateTime ngaygiohientai = TimeZoneInfo.ConvertTimeFromUtc(dateTime, vnTimeZone);
+            return ngaygiohientai;
+        }
+        private DateTime FormatDate(DateTime dateTime)
+        {
+         
+            DateTime ngayhientai = DateTime.Parse(TimeZoneInfo.ConvertTimeFromUtc(dateTime, vnTimeZone).ToShortDateString());
+            return ngayhientai;
         }
     }
 }

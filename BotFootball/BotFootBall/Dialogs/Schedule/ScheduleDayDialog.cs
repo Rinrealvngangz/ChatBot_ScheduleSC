@@ -26,19 +26,11 @@ namespace BotFootBall.Dialogs.Schedule
             }));
             InitialDialogId = nameof(WaterfallDialog);
         }
+      
         private async Task<DialogTurnResult> InitScheduleStepAsyc(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-             _schedule.GetJsonSchedule();
-            List<MatchesModel> Listmatches  = _schedule.GetScheduleDay();
-            string response = string.Empty;
-             foreach(var item in Listmatches)
-            {
-                response += item.Group+'\n';
-                response += $"Home {item.HomeTeam} vs ";
-                response += $"Away {item.AwayTeam} ";
-                response += $"({item.UctDate})\n";
-                await stepContext.Context.SendActivityAsync(MessageFactory.Text(response), cancellationToken);
-            }
+
+             _schedule.DisPlayScheduleByStep(stepContext, cancellationToken);
             return await stepContext.NextAsync(null, cancellationToken);
         }
 

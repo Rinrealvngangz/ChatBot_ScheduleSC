@@ -8,6 +8,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder.Dialogs;
+using BotFootBall.Services;
+
 namespace BotFootBall.Bots
 {
     public class DialogBot<T> :  ActivityHandler where T : Dialog 
@@ -15,12 +17,13 @@ namespace BotFootBall.Bots
         protected readonly Dialog Dialog;
         protected readonly BotState ConversationState;
         protected readonly BotState UserState;
-
-        public DialogBot(ConversationState conversationState,  T dialog, UserState userState)
+        protected readonly ISchedule _schedule;
+        public DialogBot(ConversationState conversationState,  T dialog, UserState userState , ISchedule schedule)
         {
             ConversationState = conversationState;
             Dialog = dialog;
             UserState = userState;
+            _schedule = schedule;
         }
 
         public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default(CancellationToken))
@@ -35,10 +38,22 @@ namespace BotFootBall.Bots
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
           
-            var replyText = $"Echo: {turnContext.Activity.Text}";
-        //    await turnContext.SendActivityAsync(MessageFactory.Text(replyText, replyText), cancellationToken);
-            // Run the Dialog with the new message Activity.
-            await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>("DialogState"), cancellationToken);
+            var replyText = $"Rinbot: {turnContext.Activity.Text}";
+            if(replyText.ToLower().Contains("lịch euro hôm may"))
+            {
+                _schedule.DisPlayScheduleByText(turnContext, cancellationToken);
+
+                //  await turnContext.SendActivityAsync(MessageFactory.Text(replyText, replyText), cancellationToken);
+            }
+            else
+            {
+              
+                // Run the Dialog with the new message Activity.
+                await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>("DialogState"), cancellationToken);
+            
+            }
+         
+    
         }
     
     }

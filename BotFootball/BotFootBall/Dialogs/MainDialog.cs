@@ -82,7 +82,7 @@ namespace BotFootBall.Dialogs
             var promptMessage = "What else can I do for you?";
             await stepContext.Context.SendActivityAsync(MessageFactory.Text(promptMessage), cancellationToken);
             //return await stepContext.ReplaceDialogAsync(InitialDialogId, promptMessage, cancellationToken);
-            return await stepContext.EndDialogAsync(null, cancellationToken);
+            return await stepContext.CancelAllDialogsAsync( cancellationToken);
         }
 
 

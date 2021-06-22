@@ -6,13 +6,14 @@ using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
 using Microsoft.Bot.Builder.Dialogs;
 using System.Threading;
+using BotFootBall.Services;
 
 namespace BotFootBall.Bots
 {
     public class DialogWelcomeBot<T> : DialogBot<T> where T : Dialog
     {
-        public DialogWelcomeBot(ConversationState conversationSate, T dialog, UserState userState)
-            : base(conversationSate, dialog , userState)
+        public DialogWelcomeBot(ConversationState conversationSate, T dialog, UserState userState, ISchedule schedule)
+            : base(conversationSate, dialog , userState,schedule)
         {
         }
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
