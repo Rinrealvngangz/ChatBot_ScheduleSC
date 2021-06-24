@@ -7,10 +7,10 @@ using Microsoft.Bot.Schema;
 using Microsoft.Bot.Builder.Dialogs;
 using System.Threading;
 using BotFootBall.Services;
-
+using Microsoft.Bot.Builder.Dialogs.Adaptive;
 namespace BotFootBall.Bots
 {
-    public class DialogWelcomeBot<T> : DialogBot<T> where T : Dialog
+    public class DialogWelcomeBot<T> : DialogBot<T>  where T : Dialog 
     {
         public DialogWelcomeBot(ConversationState conversationSate, T dialog, UserState userState, ISchedule schedule)
             : base(conversationSate, dialog , userState,schedule)
@@ -18,7 +18,7 @@ namespace BotFootBall.Bots
         }
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
-            var welcomeText = "Xin chào, tôi là Bot bóng đá.";
+            var welcomeText = "Xin chào, tôi là Bot bóng đá\n\n Bạn hãy gõ 'help' để biết các lệnh.";
             foreach (var member in membersAdded)
             {
                 if (member.Id != turnContext.Activity.Recipient.Id)

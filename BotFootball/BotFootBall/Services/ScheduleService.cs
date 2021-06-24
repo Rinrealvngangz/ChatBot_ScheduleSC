@@ -31,11 +31,11 @@ namespace BotFootBall.Services
 
         public ScheduleService()
         {
-            DisPlaySchedule();
+           
         }
         public async void GetJsonSchedule()
         {
-           
+
             HttpClient httpClient = new HttpClient();
             HttpRequestMessage request = new HttpRequestMessage();
             httpClient.BaseAddress = new Uri("http://api.football-data.org/v2/competitions/2018/matches");
@@ -45,30 +45,33 @@ namespace BotFootBall.Services
 
             request.Method = HttpMethod.Get;
             request.Headers.Add("X-Auth-Token", key_secret);
-          
-                HttpResponseMessage response = await httpClient.SendAsync(request);
 
-                var responseString = await response.Content.ReadAsStringAsync();
+            HttpResponseMessage response = await httpClient.SendAsync(request);
+
+            var responseString = await response.Content.ReadAsStringAsync();
 
 
-                var statusCode = response.StatusCode;
+            var statusCode = response.StatusCode;
 
-                if (statusCode.ToString().Equals("OK"))
+            if (statusCode.ToString().Equals("OK"))
+            {
+                using (MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(responseString)))
                 {
-                    MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(responseString));
                     stream.Position = 0;
                     using (FileStream file = new FileStream(Location, FileMode.Create, FileAccess.Write))
                     {
                         stream.WriteTo(file);
                         file.Close();
-                        stream.Close();
                         file.Dispose();
                     }
+                    stream.Close();
+                    stream.Dispose();
                     //   var JSONresult = JsonConvert.SerializeObject( stream , Formatting.Indented);
                     //  File.WriteAllText(@"D:\euro2021.json", JSONresult);
                 }
-            
-        
+
+
+            }
         }
 
         public List<MatchesModel> GetScheduleDay(DateTime dateTime)
@@ -110,16 +113,20 @@ namespace BotFootBall.Services
             }
             return scheduleModel.ScheduleMatch;
         }
-        public  void DisPlayScheduleByStep(WaterfallStepContext stepContext , CancellationToken cancellation )
+        public async  void DisPlayScheduleByStep(DateTime currentdateTime,WaterfallStepContext stepContext , CancellationToken cancellation )
         {
-            stringResultSchedule.ForEach(async x => await stepContext.Context.SendActivityAsync(MessageFactory.Text(x), cancellation));
+            DisPlaySchedule(currentdateTime);
+            if(stringResultSchedule.Count >0)
+            {
+                stringResultSchedule.ForEach(async x => await stepContext.Context.SendActivityAsync(MessageFactory.Text(x), cancellation));
+            }
+            else
+            {
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text("Không có trận đấu nào hết"), cancellation);
+            }
+        
         }
 
-        public  void DisPlayScheduleByText(ITurnContext<IMessageActivity> stepContext, CancellationToken cancellation)
-        {
-            stringResultSchedule.ForEach(async x => await stepContext.SendActivityAsync(MessageFactory.Text(x), cancellation));
-            
-        }
         private string StringDisplaySchedule(dynamic item)
         {
           
@@ -136,18 +143,17 @@ namespace BotFootBall.Services
             }
             else
             {
-                team = string.Concat($"(Home) {item.HomeTeam} vs", $" (Away) {item.AwayTeam}\n\n");
+                team = string.Concat($"(Home) {item.HomeTeam} vs", $" {item.AwayTeam}  (Away)\n\n");
             }
 
-            var timeMatch = string.Concat(team, $"     ({item.UctDate})");
+            var timeMatch = string.Concat(team, $"({item.UctDate})");
            
             var result = string.Concat(group, timeMatch);
             return result;
         }
-        private  void DisPlaySchedule()
+        private  void DisPlaySchedule(DateTime currentDateTime)
         {
             
-            DateTime currentDateTime = DateTime.UtcNow;
             List<MatchesModel> Listmatches = GetScheduleDay(currentDateTime);
             stringResultSchedule = new List<string>();
             foreach (var item in Listmatches)
@@ -168,6 +174,22 @@ namespace BotFootBall.Services
          
             DateTime ngayhientai = DateTime.Parse(TimeZoneInfo.ConvertTimeFromUtc(dateTime, vnTimeZone).ToShortDateString());
             return ngayhientai;
+        }
+
+        public List<DateTime> GetDateTimeOfWeeks()
+        {
+            DateTime today = DateTime.UtcNow;
+            int currentDayOfWeek = (int)today.DayOfWeek;
+            DateTime sunday = today.AddDays(-currentDayOfWeek);
+            DateTime monday = sunday.AddDays(1);
+            // If we started on Sunday, we should actually have gone *back*
+            // 6 days instead of forward 1...
+            if (currentDayOfWeek == 0)
+            {
+                monday = monday.AddDays(-7);
+            }
+            var dates = Enumerable.Range(0, 7).Select(days => monday.AddDays(days)).ToList();
+            return dates;
         }
     }
 }

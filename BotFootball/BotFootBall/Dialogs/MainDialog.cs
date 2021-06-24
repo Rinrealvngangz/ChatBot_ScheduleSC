@@ -9,71 +9,68 @@ using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
 using AdaptiveCards;
 using Newtonsoft.Json.Linq;
-using Microsoft.Extensions.Logging;
 using BotFootBall.Dialogs.Schedule;
+using BotFootBall.Models;
+using BotFootBall.Services;
 
 namespace BotFootBall.Dialogs
 {
-    public class MainDialog : ComponentDialog 
+    public class MainDialog :  ComponentDialog
     {
-      
-        public MainDialog( ScheduleDayDialog scheduleDayDialog ) : base(nameof(MainDialog))
+        private readonly ISchedule _schedule;
+        public MainDialog(ScheduleDayDialog scheduleDayDialog, ISchedule schedule) : base(nameof(MainDialog))
         {
-           AddDialog(new TextPrompt(nameof(TextPrompt)));
-            AddDialog(new ChoicePrompt(nameof(ChoicePrompt)));
+            _schedule = schedule;
+            AddDialog(new TextPrompt(nameof(TextPrompt)));
             AddDialog(scheduleDayDialog);
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[] {
-              IntroStepAsync,
-              ActStepAsync,
-              FinalStepAsync,
+               IntroStepAsync,
+               ActStepAsync,
+               FinalStepAsync,
 
-            }));
+             }));
             InitialDialogId = nameof(WaterfallDialog);
+
+
         }
+
         private async Task<DialogTurnResult> IntroStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            await stepContext.Context.SendActivityAsync(
-                MessageFactory.Text("Chọn lịch thi đấu muốn xem ?"), cancellationToken);
-
-            List<string> operationList = new List<string> { "Lịch euro hôm nay", "Lịch euro trong tuần", "Lịch euro ngày mai" };
-
-            var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 0))
+            // await stepContext.Context.SendActivityAsync(
+            //  MessageFactory.Text("Bạn hãy gõ 'help' để biết các lệnh"), cancellationToken);
+            if (stepContext.Options != null)
             {
-                // Use LINQ to turn the choices into submit actions
-                Actions = operationList.Select(choice => new AdaptiveSubmitAction
-                {
-                    Title = choice,
-                    Data = choice,  // This will be a string
-                }).ToList<AdaptiveAction>(),
-            };
-            // Promt
-            return await stepContext.PromptAsync(nameof(ChoicePrompt), new PromptOptions
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text(stepContext.Options.ToString()), cancellationToken);
+            
+            }
+            return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions
             {
-                Prompt = (Activity)MessageFactory.Attachment(new Attachment
-                {
-                    ContentType = AdaptiveCard.ContentType,
-                    // Convert the AdaptiveCard to a JObject
-                    Content = JObject.FromObject(card),
-                }),
-                Choices = ChoiceFactory.ToChoices(operationList),
-                Style = ListStyle.None
+               // Prompt = MessageFactory.Text("Tôi có thể giúp gì cho bạn?")
+
             }, cancellationToken);
         }
 
         private async Task<DialogTurnResult> ActStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-           stepContext.Values["Operation"] = ((FoundChoice)stepContext.Result).Value;
-            string operation = (string)stepContext.Values["Operation"];
-            if(operation.Equals("Lịch euro hôm nay"))
+            string rs = (string)stepContext.Result;
+             switch (rs.ToLower())
             {
-                return await stepContext.BeginDialogAsync(nameof(ScheduleDayDialog),null,cancellationToken);
+          
+                case "hôm nay":
+                  return await stepContext.BeginDialogAsync(nameof(ScheduleDayDialog),null,cancellationToken);
+                case "ngày mai":
+                    DateTime dt = DateTime.UtcNow.AddDays(1);
+                    _schedule.DisPlayScheduleByStep(dt, stepContext, cancellationToken);
+                    break;
+                case "trong tuần":
+                    _schedule.GetDateTimeOfWeeks().ForEach(dt => _schedule.DisPlayScheduleByStep(dt, stepContext, cancellationToken));
+                    break;
+                default:
+                   return await stepContext.ReplaceDialogAsync(InitialDialogId, "Xin lỗi,Tôi không hiểu", cancellationToken);
+
             }
-            else
-            {
-                await stepContext.Context.SendActivityAsync(MessageFactory.Text("You have selected - " + operation), cancellationToken);
-            }
-           
             return await stepContext.NextAsync(null, cancellationToken);
+
         }
        
         private async Task<DialogTurnResult> FinalStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
@@ -82,10 +79,19 @@ namespace BotFootBall.Dialogs
             var promptMessage = "What else can I do for you?";
             await stepContext.Context.SendActivityAsync(MessageFactory.Text(promptMessage), cancellationToken);
             //return await stepContext.ReplaceDialogAsync(InitialDialogId, promptMessage, cancellationToken);
-            return await stepContext.CancelAllDialogsAsync( cancellationToken);
+            return await stepContext.ReplaceDialogAsync(InitialDialogId,null,cancellationToken);
         }
 
+    
+        private async Task<ResourceResponse> HelpBot(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+            string help = "Chức năng của bot\n\n'lịch euro hôm nay': xem lịch trong ngày\n\n'" +
+                          "lịch euro ngày mai': xem lịch thi đấu ngày mai\n\n"+
+                          "lịch euro trong tuần': xem lịch thi đấu trong tuần\n\n";
+            return await stepContext.Context.SendActivityAsync(
+            MessageFactory.Text(help), cancellationToken);
+          
+        }
 
-       
     }
 }

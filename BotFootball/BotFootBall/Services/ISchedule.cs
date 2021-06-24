@@ -11,7 +11,7 @@ namespace BotFootBall.Services
 {
   public  interface ISchedule
     {
-        public void DisPlayScheduleByStep(WaterfallStepContext stepContext, CancellationToken cancellation);
-        public void DisPlayScheduleByText(ITurnContext<IMessageActivity> stepContext, CancellationToken cancellation);
+        public void DisPlayScheduleByStep(DateTime dateTime,WaterfallStepContext stepContext, CancellationToken cancellation);
+        public List<DateTime> GetDateTimeOfWeeks();
     }
 }
