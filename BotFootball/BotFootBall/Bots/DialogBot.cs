@@ -48,6 +48,7 @@ namespace BotFootBall.Bots
                 string help = "Chức năng của bot\n\n'hôm nay': xem lịch trong ngày\n\n'" +
                               "ngày mai': xem lịch thi đấu ngày mai\n\n" +
                               "trong tuần': xem lịch thi đấu trong tuần\n\n"+
+                              "ngày/tháng': xem lịch đấu theo ngày(vd:6/15)\n\n"+
                               "XH_tên bảng': bảng xếp hạng với tên bảng (vd:XH_A)\n\n";
                 await turnContext.SendActivityAsync(
                 MessageFactory.Text(help), cancellationToken);

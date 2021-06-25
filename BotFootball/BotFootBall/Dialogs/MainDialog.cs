@@ -12,11 +12,13 @@ using Newtonsoft.Json.Linq;
 using BotFootBall.Dialogs.Schedule;
 using BotFootBall.Models;
 using BotFootBall.Services;
+using System.Globalization;
 
 namespace BotFootBall.Dialogs
 {
     public class MainDialog :  ComponentDialog
     {
+        private DateTime dateTime;
         private readonly ISchedule _schedule;
         private readonly IStandingService _standingService;
         public MainDialog(ScheduleDayDialog scheduleDayDialog, ISchedule schedule ,IStandingService standingService) : base(nameof(MainDialog))
@@ -51,22 +53,46 @@ namespace BotFootBall.Dialogs
 
             }, cancellationToken);
         }
-
+     
         private async Task<DialogTurnResult> ActStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             string rs = (string)stepContext.Result;
-            string group_type = string.Empty;
+            string filter = string.Empty;
             const string GROUP = "group_";
-
+            int day;
+            int month;
             if (rs.StartsWith("XH_"))
             {
-               group_type =  rs.Split('_')[1].ToUpper();
+                filter =  rs.Split('_')[1].ToUpper();
                 rs = "xếp hạng";
+            }else if (rs.Length > 0 && char.IsNumber(rs[0]))
+            {
+                string[] formats = { "M/dd" };      
+                bool checkMonth = Int32.TryParse(rs.Split('/')[0], out month);
+                bool checkDay = Int32.TryParse(rs.Split('/')[1], out day);
+                bool checkDate = DateTime.TryParseExact(rs, formats, new CultureInfo("en-US"),
+                                   DateTimeStyles.None, out dateTime);
+                bool checkRangeDayMonth = day <= 11 && month == 7 || day >= 11 && month == 6;
+                bool checkOutRangeDayMonth = day >= 11 && month == 7 || day <= 11 && month == 6 || month != 7 || month != 6;
+                if (checkRangeDayMonth && checkDay && checkMonth && checkDate)
+                {
+                    rs = "ngày thi đấu";
+                }
+                else if(checkOutRangeDayMonth)
+                {
+                    return await stepContext.ReplaceDialogAsync(InitialDialogId, "Chọn ngày thi đấu trong khoảng (06/11 - 07/11).", cancellationToken);
+
+                }
+                if (checkDate== false)
+                {
+                    return await stepContext.ReplaceDialogAsync(InitialDialogId, "format không đúng ngày tháng, dùng help xem lệnh.", cancellationToken);
+                }
             }
              switch (rs.ToLower())
             {
                      
                 case "hôm nay":
+                   
                   return await stepContext.BeginDialogAsync(nameof(ScheduleDayDialog),null,cancellationToken);
                 case "ngày mai":
                     DateTime dt = DateTime.UtcNow.AddDays(1);
@@ -76,9 +102,12 @@ namespace BotFootBall.Dialogs
                     _schedule.GetDateTimeOfWeeks().ForEach(dt => _schedule.DisPlayScheduleByStep(dt, stepContext, cancellationToken));
                     break;
                 case "xếp hạng":
-                    string group = GROUP.ToUpper() + group_type;
+                    string group = GROUP.ToUpper() + filter;
                     
                     await stepContext.Context.SendActivityAsync(MessageFactory.Attachment( await _standingService.GetBotStading(group)), cancellationToken);
+                    break;
+                case "ngày thi đấu":
+                    _schedule.DisPlayScheduleByStep( dateTime, stepContext, cancellationToken);
                     break;
                 default:
                    return await stepContext.ReplaceDialogAsync(InitialDialogId, "Xin lỗi,Tôi không hiểu", cancellationToken);
@@ -90,23 +119,12 @@ namespace BotFootBall.Dialogs
        
         private async Task<DialogTurnResult> FinalStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            // Restart the main dialog with a different message the second time around
-            var promptMessage = "What else can I do for you?";
-            await stepContext.Context.SendActivityAsync(MessageFactory.Text(promptMessage), cancellationToken);
+          
             //return await stepContext.ReplaceDialogAsync(InitialDialogId, promptMessage, cancellationToken);
             return await stepContext.ReplaceDialogAsync(InitialDialogId,null,cancellationToken);
         }
 
     
-        private async Task<ResourceResponse> HelpBot(WaterfallStepContext stepContext, CancellationToken cancellationToken)
-        {
-            string help = "Chức năng của bot\n\n'lịch euro hôm nay': xem lịch trong ngày\n\n'" +
-                          "lịch euro ngày mai': xem lịch thi đấu ngày mai\n\n"+
-                          "lịch euro trong tuần': xem lịch thi đấu trong tuần\n\n";
-            return await stepContext.Context.SendActivityAsync(
-            MessageFactory.Text(help), cancellationToken);
-          
-        }
 
     }
 }
