@@ -21,6 +21,16 @@ using Microsoft.Bot.Builder.Dialogs.Adaptive.Actions;
 using AdaptiveCards;
 using Microsoft.Bot.Builder.Dialogs.Choices;
 using Newtonsoft.Json.Linq;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using static System.Net.Mime.MediaTypeNames;
+using System.Net;
+using System.Drawing;
+using System.Drawing.Imaging;
+using Newtonsoft.Json;
+using System.Text;
+using Svg;
+using System.Drawing.Drawing2D;
 
 namespace BotFootBall.Dialogs.Schedule 
 {
@@ -71,8 +81,7 @@ namespace BotFootBall.Dialogs.Schedule
 
                     break;
                 case "hủy":
-                    await stepContext.Context.SendActivityAsync(
-                          MessageFactory.Text("Xin lỗi vì sự làm phiền này."), cancellationToken);
+                    await stepContext.Context.SendActivityAsync(MessageFactory.Text("Xin lỗi vì sự làm phiền này."), cancellationToken);
                     break;
                 default:
                     await stepContext.Context.SendActivityAsync(
@@ -83,7 +92,31 @@ namespace BotFootBall.Dialogs.Schedule
  
             return await stepContext.NextAsync(null, cancellationToken);
         }
+        public static Bitmap Resize(System.Drawing.Image image, int width, int height)
+        {
 
+            var destRect = new Rectangle(0, 0, width, height);
+            var destImage = new Bitmap(width, height);
+
+            destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
+
+            using (var graphics = Graphics.FromImage(destImage))
+            {
+                graphics.CompositingMode = CompositingMode.SourceCopy;
+                graphics.CompositingQuality = CompositingQuality.HighQuality;
+                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                graphics.SmoothingMode = SmoothingMode.HighQuality;
+                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+                using (var wrapMode = new ImageAttributes())
+                {
+                    wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                    graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
+                }
+            }
+
+            return destImage;
+        }
         private async Task<DialogTurnResult> CompleteStepAsyc(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             return await stepContext.EndDialogAsync(null, cancellationToken);
@@ -158,7 +191,7 @@ namespace BotFootBall.Dialogs.Schedule
         //}
 
        
-
+       
     }
 }
 

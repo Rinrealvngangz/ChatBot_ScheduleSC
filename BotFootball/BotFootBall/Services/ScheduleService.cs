@@ -83,7 +83,6 @@ namespace BotFootBall.Services
             {
                 string json = streamReader.ReadToEnd();
                 var  schedule =  JObject.Parse(json)["matches"];
-                int dem = 0;
                 foreach(var item in schedule.Where(x=> FormatDate(x.Value<DateTime>("utcDate")) == FormatDate(dateTime)))
                 {
                     MatchesModel matchesModel = new MatchesModel();
@@ -102,11 +101,7 @@ namespace BotFootBall.Services
                     matchesModel.HomeTeam = item["homeTeam"].Value<string>("name");
                     matchesModel.AwayTeam = item["awayTeam"].Value<string>("name");
                     scheduleModel.ScheduleMatch.Add(matchesModel);
-                    dem++;
-                    if(dem > 6)
-                    {
-                        break;
-                    }
+                  
                 }
                 streamReader.Close();
                 streamReader.Dispose();

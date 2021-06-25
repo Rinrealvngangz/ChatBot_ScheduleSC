@@ -70,6 +70,7 @@ namespace BotFootBall
             services.AddSingleton<MainDialog>();
             services.AddTransient<IBot, DialogWelcomeBot<MainDialog>>();
             services.AddTransient<ISchedule,ScheduleService>();
+            services.AddTransient<IStandingService, StandingService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

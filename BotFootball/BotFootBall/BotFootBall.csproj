@@ -10,7 +10,9 @@
     <PackageReference Include="Microsoft.Bot.Builder.Dialogs" Version="4.13.3" />
     <PackageReference Include="Microsoft.Bot.Builder.Dialogs.Adaptive" Version="4.13.3" />
     <PackageReference Include="Microsoft.Bot.Builder.Integration.AspNet.Core" Version="4.13.3" />
+    <PackageReference Include="Svg" Version="3.2.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
   </ItemGroup>
 
   <ItemGroup>

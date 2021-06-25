@@ -18,9 +18,11 @@ namespace BotFootBall.Dialogs
     public class MainDialog :  ComponentDialog
     {
         private readonly ISchedule _schedule;
-        public MainDialog(ScheduleDayDialog scheduleDayDialog, ISchedule schedule) : base(nameof(MainDialog))
+        private readonly IStandingService _standingService;
+        public MainDialog(ScheduleDayDialog scheduleDayDialog, ISchedule schedule ,IStandingService standingService) : base(nameof(MainDialog))
         {
             _schedule = schedule;
+            _standingService = standingService;
             AddDialog(new TextPrompt(nameof(TextPrompt)));
             AddDialog(scheduleDayDialog);
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[] {
@@ -53,9 +55,17 @@ namespace BotFootBall.Dialogs
         private async Task<DialogTurnResult> ActStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             string rs = (string)stepContext.Result;
+            string group_type = string.Empty;
+            const string GROUP = "group_";
+
+            if (rs.StartsWith("XH_"))
+            {
+               group_type =  rs.Split('_')[1].ToUpper();
+                rs = "xếp hạng";
+            }
              switch (rs.ToLower())
             {
-          
+                     
                 case "hôm nay":
                   return await stepContext.BeginDialogAsync(nameof(ScheduleDayDialog),null,cancellationToken);
                 case "ngày mai":
@@ -64,6 +74,11 @@ namespace BotFootBall.Dialogs
                     break;
                 case "trong tuần":
                     _schedule.GetDateTimeOfWeeks().ForEach(dt => _schedule.DisPlayScheduleByStep(dt, stepContext, cancellationToken));
+                    break;
+                case "xếp hạng":
+                    string group = GROUP.ToUpper() + group_type;
+                    
+                    await stepContext.Context.SendActivityAsync(MessageFactory.Attachment( await _standingService.GetBotStading(group)), cancellationToken);
                     break;
                 default:
                    return await stepContext.ReplaceDialogAsync(InitialDialogId, "Xin lỗi,Tôi không hiểu", cancellationToken);
