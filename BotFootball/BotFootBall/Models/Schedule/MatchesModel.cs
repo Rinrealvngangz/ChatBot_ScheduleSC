@@ -14,6 +14,8 @@ namespace BotFootBall.Models
 
         public string HomeTeam { get; set; }
 
+        public string Status { get; set; }
+
         public FullTimeModel FullTime { get; set; }
 
 

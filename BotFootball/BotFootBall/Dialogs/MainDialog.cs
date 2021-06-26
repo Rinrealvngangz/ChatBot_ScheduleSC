@@ -21,10 +21,13 @@ namespace BotFootBall.Dialogs
         private DateTime dateTime;
         private readonly ISchedule _schedule;
         private readonly IStandingService _standingService;
-        public MainDialog(ScheduleDayDialog scheduleDayDialog, ISchedule schedule ,IStandingService standingService) : base(nameof(MainDialog))
+
+        private readonly ITeamService _teamService;
+        public MainDialog(ScheduleDayDialog scheduleDayDialog, ISchedule schedule ,IStandingService standingService, ITeamService teamService) : base(nameof(MainDialog))
         {
             _schedule = schedule;
             _standingService = standingService;
+            _teamService = teamService;
             AddDialog(new TextPrompt(nameof(TextPrompt)));
             AddDialog(scheduleDayDialog);
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[] {
@@ -53,7 +56,7 @@ namespace BotFootBall.Dialogs
 
             }, cancellationToken);
         }
-     
+        
         private async Task<DialogTurnResult> ActStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             string rs = (string)stepContext.Result;
@@ -61,6 +64,7 @@ namespace BotFootBall.Dialogs
             const string GROUP = "group_";
             int day;
             int month;
+            string team = string.Empty;
             if (rs.StartsWith("XH_"))
             {
                 filter =  rs.Split('_')[1].ToUpper();
@@ -87,32 +91,121 @@ namespace BotFootBall.Dialogs
                 {
                     return await stepContext.ReplaceDialogAsync(InitialDialogId, "format không đúng ngày tháng, dùng help xem lệnh.", cancellationToken);
                 }
-            }
-             switch (rs.ToLower())
+            }else if (rs.StartsWith("T_"))
             {
-                     
-                case "hôm nay":
-                   
-                  return await stepContext.BeginDialogAsync(nameof(ScheduleDayDialog),null,cancellationToken);
-                case "ngày mai":
-                    DateTime dt = DateTime.UtcNow.AddDays(1);
-                    _schedule.DisPlayScheduleByStep(dt, stepContext, cancellationToken);
-                    break;
-                case "trong tuần":
-                    _schedule.GetDateTimeOfWeeks().ForEach(dt => _schedule.DisPlayScheduleByStep(dt, stepContext, cancellationToken));
-                    break;
-                case "xếp hạng":
-                    string group = GROUP.ToUpper() + filter;
-                    
-                    await stepContext.Context.SendActivityAsync(MessageFactory.Attachment( await _standingService.GetBotStading(group)), cancellationToken);
-                    break;
-                case "ngày thi đấu":
-                    _schedule.DisPlayScheduleByStep( dateTime, stepContext, cancellationToken);
-                    break;
-                default:
-                   return await stepContext.ReplaceDialogAsync(InitialDialogId, "Xin lỗi,Tôi không hiểu", cancellationToken);
-
+                team = rs.Split('_')[1].ToLower().ToString();
+                rs = "đội";
+               
             }
+             if(!stepContext.Result.Equals("đội") && !stepContext.Result.Equals("xếp hạng") && !stepContext.Result.Equals("ngày thi đấu"))
+            {
+                switch (rs.ToLower())
+                {
+
+                    case "hôm nay":
+
+                        return await stepContext.BeginDialogAsync(nameof(ScheduleDayDialog), null, cancellationToken);
+                    case "ngày mai":
+                        DateTime dt = DateTime.UtcNow.AddDays(1);
+                        _schedule.DisPlayScheduleByStep(dt, stepContext, cancellationToken);
+                        break;
+                    case "trong tuần":
+                        _schedule.GetDateTimeOfWeeks().ForEach(dt => _schedule.DisPlayScheduleByStep(dt, stepContext, cancellationToken));
+                        break;
+                    case "xếp hạng":
+                        string group = GROUP.ToUpper() + filter;
+
+                        await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(await _standingService.GetBotStading(group)), cancellationToken);
+                        break;
+                    case "ngày thi đấu":
+                        _schedule.DisPlayScheduleByStep(dateTime, stepContext, cancellationToken);
+                        break;
+                    case "đội":
+                       ScheduleModel resutl =  await _teamService.GetJsonTeamAsync(team);
+                        string fullstring = string.Empty;
+
+                        if (resutl== null)
+                        {
+                            return await stepContext.ReplaceDialogAsync(InitialDialogId, "Xin lỗi,Tôi không tìm thấy đội bóng", cancellationToken);
+                        }
+                        else
+                        {
+                            bool cotinute = false;
+                            string finish = string.Empty;
+                            ThumbnailCard thumCard;
+                            foreach (var item in resutl.ScheduleMatch)
+                            {
+                                var hasFullTime = string.Empty;
+                                var teams = string.Empty;
+                                if (item.FullTime != null)
+                                {
+                                    hasFullTime = $"{item.FullTime.HomeTeam} - {item.FullTime.AwayTeam}";
+                                }
+                                if (item.Status.Equals("SCHEDULED"))
+                                {
+                                    cotinute = true;
+                                    team = string.Concat($"Chưa thi đấu:\n\n(Home) {item.HomeTeam} vs", $" {item.AwayTeam}  (Away)\n\n");
+                                }else if (item.Status.Equals("FINISHED") && !hasFullTime.Equals(string.Empty))
+                                {
+                                    team = string.Concat($"(Home) {item.HomeTeam}  {hasFullTime} ", $" {item.AwayTeam} (Away) \n\n");
+                                }
+                                
+                                var endline = $"\n\n";
+                             
+           
+                                var timeMatch = string.Concat(team, $"({item.UctDate})\n\n\n\n");
+
+                                fullstring += string.Concat(endline, timeMatch);
+                            }
+                            if (cotinute == false)
+                            {
+                                finish = "(Đã bị loại)";
+                                thumCard = new ThumbnailCard()
+                                {
+                                    Title = resutl.teamModel.Name + "-" + resutl.ScheduleMatch[0].Group,
+                                    Images = new List<CardImage>
+                                { new CardImage(resutl.teamModel.CrestUrl) },
+
+                                    Subtitle = finish + "\n\n"+
+                                                "Vị trí: " + "Số " + resutl.teamModel.Position + "\n\n" +
+                                                "Điểm số: " + resutl.teamModel.Points + " điểm \n\n" +
+                                                "Thắng: " + resutl.teamModel.Won + "\n\n" +
+                                                "Hòa: " + resutl.teamModel.Draw + "\n\n" +
+                                                "Thua: " + resutl.teamModel.Lost + "\n\n\n\n",
+                                    Text =        "Thông tin trận đấu:\n\n Đã thi đấu:\n\n" + fullstring
+                                };
+                            }
+                            else
+                            {
+                                thumCard = new ThumbnailCard()
+                                {
+                                    Title = resutl.teamModel.Name + "-" + resutl.ScheduleMatch[0].Group,
+                                    Images = new List<CardImage>
+                                { new CardImage(resutl.teamModel.CrestUrl) },
+
+                                    Subtitle = "Vị trí: " + "Số " + resutl.teamModel.Position + "\n\n" +
+                                               "Điểm số: " + resutl.teamModel.Points + " điểm \n\n" +
+                                               "Thắng: " + resutl.teamModel.Won + "\n\n" +
+                                               "Hòa: " + resutl.teamModel.Draw + "\n\n" +
+                                               "Thua: " + resutl.teamModel.Lost + "\n\n\n\n",
+                                    Text =     "Thông tin trận đấu:\n\n Đã thi đấu:\n\n" + fullstring
+                                };
+                            }
+                            
+                            await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(thumCard.ToAttachment()), cancellationToken);
+
+                        }
+                        break;
+                    default:
+                        return await stepContext.ReplaceDialogAsync(InitialDialogId, "Xin lỗi,Tôi không hiểu", cancellationToken);
+
+                }
+            }
+            else
+            {
+                return await stepContext.ReplaceDialogAsync(InitialDialogId, "Xin lỗi,Tôi không hiểu", cancellationToken);
+            }
+            
             return await stepContext.NextAsync(null, cancellationToken);
 
         }

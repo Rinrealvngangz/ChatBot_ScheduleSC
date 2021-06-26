@@ -9,5 +9,6 @@ namespace BotFootBall.Services
   public  interface  IStandingService
     {
         public  Task<Attachment> GetBotStading(string group);
+        public Task<IEnumerable<dynamic>> GetJsonStading(string group);
     }
 }

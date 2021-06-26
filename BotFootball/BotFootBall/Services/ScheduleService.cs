@@ -58,7 +58,7 @@ namespace BotFootBall.Services
                 using (MemoryStream stream = new MemoryStream(Encoding.UTF8.GetBytes(responseString)))
                 {
                     stream.Position = 0;
-                    using (FileStream file = new FileStream("../BotFootBall/data/scheduleMatchDay.json", FileMode.Create, FileAccess.Write))
+                    using (FileStream file = new FileStream("../BotFootBall/data/schedule.json", FileMode.Create, FileAccess.Write))
                     {
                         stream.WriteTo(file);
                         file.Close();

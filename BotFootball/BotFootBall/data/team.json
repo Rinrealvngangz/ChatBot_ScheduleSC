@@ -1,0 +1,100 @@
+{
+  "ListTeam": [
+    {
+      "Id": "759",
+      "Name": "Germany"
+    },
+    {
+      "Id": "760",
+      "Name": "Spain"
+    },
+    {
+      "Id": "765",
+      "Name": "Portugal"
+    },
+    {
+      "Id": "768",
+      "Name": "Slovakia"
+    },
+    {
+      "Id": "770",
+      "Name": "England"
+    },
+    {
+      "Id": "773",
+      "Name": "France"
+    },
+    {
+      "Id": "782",
+      "Name": "Denmark"
+    },
+    {
+      "Id": "784",
+      "Name": "Italy"
+    },
+    {
+      "Id": "788",
+      "Name": "Switzerland"
+    },
+    {
+      "Id": "790",
+      "Name": "Ukraine"
+    },
+    {
+      "Id": "792",
+      "Name": "Sweden"
+    },
+    {
+      "Id": "794",
+      "Name": "Poland"
+    },
+    {
+      "Id": "798",
+      "Name": "Czech Republic"
+    },
+    {
+      "Id": "799",
+      "Name": "Croatia"
+    },
+    {
+      "Id": "803",
+      "Name": "Turkey"
+    },
+    {
+      "Id": "805",
+      "Name": "Belgium"
+    },
+    {
+      "Id": "808",
+      "Name": "Russia"
+    },
+    {
+      "Id": "816",
+      "Name": "Austria"
+    },
+    {
+      "Id": "827",
+      "Name": "Hungary"
+    },
+    {
+      "Id": "833",
+      "Name": "Wales"
+    },
+    {
+      "Id": "1976",
+      "Name": "Finland"
+    },
+    {
+      "Id": "1977",
+      "Name": "North Macedonia"
+    },
+    {
+      "Id": "8601",
+      "Name": "Netherlands"
+    },
+    {
+      "Id": "8873",
+      "Name": "Scotland"
+    }
+  ]
+}
