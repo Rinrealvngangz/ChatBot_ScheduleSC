@@ -11,6 +11,7 @@ using Microsoft.Bot.Builder.Dialogs;
 using BotFootBall.Services;
 using BotFootBall.Dialogs.Schedule;
 using BotFootBall.Models;
+using System.Collections.Concurrent;
 
 namespace BotFootBall.Bots
 {
@@ -20,14 +21,17 @@ namespace BotFootBall.Bots
         protected readonly BotState ConversationState;
         protected readonly BotState UserState;
         protected readonly ISchedule _schedule;
-        
-        public DialogBot(ConversationState conversationState,T dialog, UserState userState , ISchedule schedule)
+     
+        private ConcurrentDictionary<string, ConversationReference> _userConversationReferences;
+        public DialogBot(ConcurrentDictionary<string, ConversationReference> userConversationReferences,
+            ConversationState conversationState,T dialog, UserState userState , ISchedule schedule)
         {
             ConversationState = conversationState;
             Dialog = dialog;
             UserState = userState;
             _schedule = schedule;
-            
+         
+            _userConversationReferences = userConversationReferences;
         }
 
         public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default(CancellationToken))
@@ -41,6 +45,8 @@ namespace BotFootBall.Bots
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
+      
+      
             var stateObj = ConversationState.CreateProperty<StateObj>(nameof(StateObj));
             var stateProp = await stateObj.GetAsync(turnContext, () => new StateObj());
             if (turnContext.Activity.Text.Equals("help"))
@@ -49,7 +55,8 @@ namespace BotFootBall.Bots
                               "ngày mai': xem lịch thi đấu ngày mai\n\n" +
                               "trong tuần': xem lịch thi đấu trong tuần\n\n"+
                               "ngày/tháng': xem lịch đấu theo ngày(vd:6/15)\n\n"+
-                              "XH_tên bảng': bảng xếp hạng với tên bảng (vd:XH_A)\n\n";
+                              "XH_tên bảng': bảng xếp hạng với tên bảng (vd:XH_A)\n\n"+
+                              "T_tên đội tuyển': xem thông tin chi tiết đội tuyển (vd:TH_Italy)\n\n";
                 await turnContext.SendActivityAsync(
                 MessageFactory.Text(help), cancellationToken);
               
@@ -67,7 +74,21 @@ namespace BotFootBall.Bots
          
         
         }
-    
+        protected override Task OnConversationUpdateActivityAsync(ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
+        {
+
+            if (turnContext.Activity is Activity activity)
+            {
+                var conReference = activity.GetConversationReference();
+              
+                _userConversationReferences.AddOrUpdate(conReference.User.Id, conReference,
+                    (key, newValue) => conReference);
+            }
+
+            return base.OnConversationUpdateActivityAsync(turnContext, cancellationToken);
+        }
+
+
 
     }
 }

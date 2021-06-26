@@ -13,21 +13,27 @@ using BotFootBall.Dialogs.Schedule;
 using BotFootBall.Models;
 using BotFootBall.Services;
 using System.Globalization;
+using System.Net.Http;
 
 namespace BotFootBall.Dialogs
 {
     public class MainDialog :  ComponentDialog
     {
         private DateTime dateTime;
+        private readonly IHttpClientFactory _factory;
         private readonly ISchedule _schedule;
         private readonly IStandingService _standingService;
-
+        private readonly TimersManage _timerManage;
         private readonly ITeamService _teamService;
-        public MainDialog(ScheduleDayDialog scheduleDayDialog, ISchedule schedule ,IStandingService standingService, ITeamService teamService) : base(nameof(MainDialog))
+        public MainDialog(ScheduleDayDialog scheduleDayDialog, ISchedule schedule,
+                            IStandingService standingService, ITeamService teamService,
+                            TimersManage timerManage, IHttpClientFactory factory) : base(nameof(MainDialog))
         {
             _schedule = schedule;
             _standingService = standingService;
             _teamService = teamService;
+            _timerManage = timerManage;
+            _factory = factory;
             AddDialog(new TextPrompt(nameof(TextPrompt)));
             AddDialog(scheduleDayDialog);
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[] {
@@ -157,26 +163,7 @@ namespace BotFootBall.Dialogs
 
                                 fullstring += string.Concat(endline, timeMatch);
                             }
-                            if (cotinute == false)
-                            {
-                                finish = "(Đã bị loại)";
-                                thumCard = new ThumbnailCard()
-                                {
-                                    Title = resutl.teamModel.Name + "-" + resutl.ScheduleMatch[0].Group,
-                                    Images = new List<CardImage>
-                                { new CardImage(resutl.teamModel.CrestUrl) },
-
-                                    Subtitle = finish + "\n\n"+
-                                                "Vị trí: " + "Số " + resutl.teamModel.Position + "\n\n" +
-                                                "Điểm số: " + resutl.teamModel.Points + " điểm \n\n" +
-                                                "Thắng: " + resutl.teamModel.Won + "\n\n" +
-                                                "Hòa: " + resutl.teamModel.Draw + "\n\n" +
-                                                "Thua: " + resutl.teamModel.Lost + "\n\n\n\n",
-                                    Text =        "Thông tin trận đấu:\n\n Đã thi đấu:\n\n" + fullstring
-                                };
-                            }
-                            else
-                            {
+                           
                                 thumCard = new ThumbnailCard()
                                 {
                                     Title = resutl.teamModel.Name + "-" + resutl.ScheduleMatch[0].Group,
@@ -190,11 +177,16 @@ namespace BotFootBall.Dialogs
                                                "Thua: " + resutl.teamModel.Lost + "\n\n\n\n",
                                     Text =     "Thông tin trận đấu:\n\n Đã thi đấu:\n\n" + fullstring
                                 };
-                            }
+                            
                             
                             await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(thumCard.ToAttachment()), cancellationToken);
 
                         }
+                        break;
+                    case "timer":
+                        _timerManage.AddTimer(_factory ,stepContext.Context.Activity.GetConversationReference(), 5);
+                        await stepContext.Context.SendActivityAsync($"Starting a 5s timer");
+                        
                         break;
                     default:
                         return await stepContext.ReplaceDialogAsync(InitialDialogId, "Xin lỗi,Tôi không hiểu", cancellationToken);
@@ -217,7 +209,7 @@ namespace BotFootBall.Dialogs
             return await stepContext.ReplaceDialogAsync(InitialDialogId,null,cancellationToken);
         }
 
-    
 
+      
     }
 }

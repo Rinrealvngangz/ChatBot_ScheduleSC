@@ -1,4 +1,5 @@
 using BotFootBall.Bots;
+using BotFootBall.Controllers;
 using BotFootBall.Dialogs;
 using BotFootBall.Dialogs.Schedule;
 using BotFootBall.Middleware;
@@ -7,12 +8,17 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.BotFramework;
+using Microsoft.Bot.Builder.Integration;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
+using Microsoft.Bot.Connector.Authentication;
+using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -34,7 +40,7 @@ namespace BotFootBall
         public void ConfigureServices(IServiceCollection services)
         {
             // Create the Bot Framework Adapter with error handling enabled.
-        //   services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
+             services.AddSingleton<IBotFrameworkHttpAdapter, AdapterWithErrorHandler>();
           
 
        
@@ -63,12 +69,16 @@ namespace BotFootBall
                 //option.Middleware.Add(new PassthoughtMiddleware());
                
             });
+            services.AddHttpClient();
             services.AddSingleton<ScheduleDayDialog>();
             services.AddSingleton<MainDialog>();
+            services.AddSingleton<TimersManage>();
+            services.AddSingleton<ConcurrentDictionary<string, ConversationReference>>();
             services.AddTransient<IBot, DialogWelcomeBot<MainDialog>>();
             services.AddTransient<ISchedule,ScheduleService>();
             services.AddTransient<IStandingService, StandingService>();
             services.AddTransient<ITeamService, TeamService>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

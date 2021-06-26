@@ -8,12 +8,18 @@ using Microsoft.Bot.Builder.Dialogs;
 using System.Threading;
 using BotFootBall.Services;
 using Microsoft.Bot.Builder.Dialogs.Adaptive;
+using System.Collections.Concurrent;
+
 namespace BotFootBall.Bots
 {
     public class DialogWelcomeBot<T> : DialogBot<T>  where T : Dialog 
     {
-        public DialogWelcomeBot(ConversationState conversationSate, T dialog, UserState userState, ISchedule schedule)
-            : base(conversationSate, dialog , userState,schedule)
+      
+
+        public DialogWelcomeBot(ConcurrentDictionary<string, ConversationReference> userConversationReferences,
+            ConversationState conversationSate, T dialog, UserState userState, ISchedule schedule 
+          )
+            : base(userConversationReferences,conversationSate, dialog , userState,schedule)
         {
         }
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
@@ -24,10 +30,13 @@ namespace BotFootBall.Bots
                 if (member.Id != turnContext.Activity.Recipient.Id)
                 {
                     await turnContext.SendActivityAsync(MessageFactory.Text(welcomeText, welcomeText), cancellationToken);
-
+                   
                     await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>("DialogState"), cancellationToken);
                 }
             }
         }
+
+      
+
     }
 }
