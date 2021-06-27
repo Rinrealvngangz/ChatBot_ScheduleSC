@@ -28,7 +28,7 @@ namespace BotFootBall.Services
         public async Task Start()
         {
            
-            await Task.Delay(5 * 1000);
+            await Task.Delay(Seconds * 1000);
             await _adapter.ContinueConversationAsync(string.Empty, ConversationReference, SendMessageAsync);
         }
         private async Task SendMessageAsync(ITurnContext turncontext, CancellationToken cancellationtoken)

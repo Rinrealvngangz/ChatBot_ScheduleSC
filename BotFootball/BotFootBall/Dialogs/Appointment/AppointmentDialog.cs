@@ -77,7 +77,7 @@ namespace BotFootBall.Dialogs.Appointment
              var rs = stepContext.Result;
             if (!rs.Equals("Hủy"))
             {
-                DateTime currentTime = FormatTimeZoneVietNam(DateTime.UtcNow.AddMinutes(-1));
+                DateTime currentTime = FormatTimeZoneVietNam(DateTime.UtcNow.AddMinutes(-3));
                 TimeSpan time = Convert.ToDateTime(rs) - currentTime;
                 int seconds = Convert.ToInt32(time.TotalSeconds);
                 _timerManage.AddTimer(_factory, stepContext.Context.Activity.GetConversationReference(), seconds);
