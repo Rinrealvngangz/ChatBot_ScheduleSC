@@ -45,8 +45,7 @@ namespace BotFootBall.Bots
 
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-      
-      
+
             var stateObj = ConversationState.CreateProperty<StateObj>(nameof(StateObj));
             var stateProp = await stateObj.GetAsync(turnContext, () => new StateObj());
             if (turnContext.Activity.Text.Equals("help"))
@@ -56,7 +55,8 @@ namespace BotFootBall.Bots
                               "trong tuần': xem lịch thi đấu trong tuần\n\n"+
                               "ngày/tháng': xem lịch đấu theo ngày(vd:6/15)\n\n"+
                               "XH_tên bảng': bảng xếp hạng với tên bảng (vd:XH_A)\n\n"+
-                              "T_tên đội tuyển': xem thông tin chi tiết đội tuyển (vd:TH_Italy)\n\n";
+                              "T_tên đội tuyển': xem thông tin chi tiết đội tuyển (vd:TH_Italy)\n\n"+
+                              "đặt hẹn': đặt hẹn thông báo trận đấu\n\n";
                 await turnContext.SendActivityAsync(
                 MessageFactory.Text(help), cancellationToken);
               

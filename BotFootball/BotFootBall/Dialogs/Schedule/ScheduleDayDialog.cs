@@ -8,28 +8,11 @@ using Microsoft.Bot.Schema;
 using Microsoft.Bot.Builder.Dialogs;
 using System.Threading;
 using BotFootBall.Services;
-using BotFootBall.Models;
-using Microsoft.Bot.Builder.Dialogs.Adaptive;
-using Microsoft.Bot.Builder.Dialogs.Adaptive.Input;
-using Microsoft.Bot.Builder.Dialogs.Adaptive.Conditions;
-using Microsoft.Bot.Builder.Dialogs.Adaptive.Templates;
-using Microsoft.Bot.Builder.Dialogs.Adaptive.Recognizers;
-using Microsoft.Bot.Builder.Dialogs.Adaptive.Generators;
-using Microsoft.Bot.Builder.LanguageGeneration;
-using System.IO;
-using Microsoft.Bot.Builder.Dialogs.Adaptive.Actions;
 using AdaptiveCards;
 using Microsoft.Bot.Builder.Dialogs.Choices;
 using Newtonsoft.Json.Linq;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using static System.Net.Mime.MediaTypeNames;
-using System.Net;
 using System.Drawing;
 using System.Drawing.Imaging;
-using Newtonsoft.Json;
-using System.Text;
-using Svg;
 using System.Drawing.Drawing2D;
 
 namespace BotFootBall.Dialogs.Schedule 
@@ -42,6 +25,7 @@ namespace BotFootBall.Dialogs.Schedule
         {
             _schedule = schedule;
             AddDialog(new TextPrompt(nameof(TextPrompt)));
+            AddDialog(new TextPrompt("appointmentSchedule"));
             AddDialog(new ChoicePrompt(nameof(ChoicePrompt)));
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[]{
                   InitScheduleStepAsyc,
@@ -54,14 +38,16 @@ namespace BotFootBall.Dialogs.Schedule
         private async Task<DialogTurnResult> InitScheduleStepAsyc(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             DateTime dt = DateTime.UtcNow;
-            _schedule.DisPlayScheduleByStep(dt,stepContext, cancellationToken);
+             _schedule.DisPlayScheduleByStep(dt,stepContext, cancellationToken);
             return await stepContext.NextAsync(null, cancellationToken);
         }
 
       
         private async Task<DialogTurnResult> MoreScheduleStepAsyc(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-          return  await CardPromSchedule(stepContext, cancellationToken);
+                                  
+           return  await CardPromSchedule(stepContext, cancellationToken);
+      
         }
 
        
@@ -69,15 +55,15 @@ namespace BotFootBall.Dialogs.Schedule
         {
             stepContext.Values["Operation"] = ((FoundChoice)stepContext.Result).Value;
             string operation = (string)stepContext.Values["Operation"];
-
+            await stepContext.Context.SendActivityAsync(MessageFactory.Text(operation), cancellationToken);
             switch (operation.ToLower())
-            { 
+            {
                 case "ngày mai":
                     DateTime dt = DateTime.UtcNow.AddDays(1);
-                    _schedule.DisPlayScheduleByStep(dt, stepContext, cancellationToken);
+                     _schedule.DisPlayScheduleByStep(dt, stepContext, cancellationToken);
                     break;
                 case "trong tuần":
-                    _schedule.GetDateTimeOfWeeks().ForEach(  dt => _schedule.DisPlayScheduleByStep(dt, stepContext, cancellationToken));
+                    _schedule.GetDateTimeOfWeeks().ForEach(dt => _schedule.DisPlayScheduleByStep(dt, stepContext, cancellationToken));
 
                     break;
                 case "hủy":
@@ -85,11 +71,11 @@ namespace BotFootBall.Dialogs.Schedule
                     break;
                 default:
                     await stepContext.Context.SendActivityAsync(
-                                      MessageFactory.Text("Tôi không hiểu, mong bạn thông cảm."), cancellationToken);
+                                     MessageFactory.Text("Tôi không hiểu, mong bạn thông cảm."), cancellationToken);
                     break;
 
             }
- 
+
             return await stepContext.NextAsync(null, cancellationToken);
         }
         public static Bitmap Resize(System.Drawing.Image image, int width, int height)
@@ -152,45 +138,6 @@ namespace BotFootBall.Dialogs.Schedule
             }, cancellationToken);
         }
       
-        //    Recognizer = CreateRecognizer();
-
-        //    Triggers = new List<OnCondition>()
-        //    {
-        //        new OnBeginDialog()
-        //        {
-        //            //Intent = textInput,
-        //            Actions =new List<Dialog>()
-        //            {
-        //                new TextInput()
-        //                {
-        //                    Prompt = new StaticActivityTemplate(MessageFactory.Text("Your name")),
-
-        //                }
-        //            }
-        //        },
-        //        new OnUnknownIntent(){
-        //           Actions = new List<Dialog>()
-        //           {
-        //               new SendActivity("Please"),
-        //           }
-        //        },
-        //};
-
-        //private static Recognizer CreateRecognizer()
-        //{
-        //    var recognizer = new RegexRecognizer()
-        //    {
-        //        Intents = new List<IntentPattern>()
-        //        {
-        //            new IntentPattern(textInput,"(?i)textinput")
-        //        }
-        //    };
-        //    return recognizer;
-
-
-        //}
-
-       
        
     }
 }

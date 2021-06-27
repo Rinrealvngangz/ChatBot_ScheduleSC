@@ -27,7 +27,8 @@ namespace BotFootBall.Services
         }
         public async Task Start()
         {
-            await Task.Delay(Seconds * 1000);
+           
+            await Task.Delay(5 * 1000);
             await _adapter.ContinueConversationAsync(string.Empty, ConversationReference, SendMessageAsync);
         }
         private async Task SendMessageAsync(ITurnContext turncontext, CancellationToken cancellationtoken)
@@ -35,7 +36,11 @@ namespace BotFootBall.Services
             HttpClient client = _factory.CreateClient();
             client.BaseAddress = new Uri("https://localhost:44348");
             var respone = client.GetAsync("api/notify");
-            await turncontext.SendActivityAsync(respone.Result.StatusCode.ToString());
+            if (respone.Result.StatusCode.ToString().Equals("OK"))
+            {
+                await turncontext.SendActivityAsync("Tới giờ xem đá bóng rồi.");
+            }
+        
         }
 
 

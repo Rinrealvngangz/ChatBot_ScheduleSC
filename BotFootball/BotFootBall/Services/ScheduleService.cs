@@ -22,16 +22,17 @@ namespace BotFootBall.Services
     {
       private readonly string  key_secret = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("Token")["key"];
 
-      private static string vnTimeZoneKey = "SE Asia Standard Time";
-
-      private static  TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById(vnTimeZoneKey);
+        private static string vnTimeZoneKey = "SE Asia Standard Time";
+        private static TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById(vnTimeZoneKey);
+        private ThumbnailCard thumnailCard;
+     
+        private List<ThumbnailCard> listThumnailCards;
         private List<string> stringResultSchedule;
-
         private readonly string Location = "../BotFootBall/data/schedule.json";
-
-        public ScheduleService()
+        private readonly TimersManage _timersManage;
+        public ScheduleService() 
         {
-           
+         
         }
         public async void GetJsonSchedule()
         {
@@ -70,10 +71,8 @@ namespace BotFootBall.Services
                     //  File.WriteAllText(@"D:\euro2021.json", JSONresult);
                 }
 
-
             }
         }
-
         public List<MatchesModel> GetScheduleDay(DateTime dateTime)
         {
              GetJsonSchedule();
@@ -108,10 +107,10 @@ namespace BotFootBall.Services
             }
             return scheduleModel.ScheduleMatch;
         }
-        public async  void DisPlayScheduleByStep(DateTime currentdateTime,WaterfallStepContext stepContext , CancellationToken cancellation )
+        public async void DisPlayScheduleByStep(DateTime currentdateTime,WaterfallStepContext stepContext , CancellationToken cancellation )
         {
             DisPlaySchedule(currentdateTime);
-            if(stringResultSchedule.Count >0)
+            if (stringResultSchedule.Count > 0)
             {
                 stringResultSchedule.ForEach(async x => await stepContext.Context.SendActivityAsync(MessageFactory.Text(x), cancellation));
             }
@@ -119,13 +118,12 @@ namespace BotFootBall.Services
             {
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text("Không có trận đấu nào hết"), cancellation);
             }
-        
         }
 
         private string StringDisplaySchedule(dynamic item)
         {
-          
-           var hasFullTime = string.Empty;
+
+            var hasFullTime = string.Empty;
             var team = string.Empty;
             if (item.FullTime != null)
             {
@@ -142,21 +140,20 @@ namespace BotFootBall.Services
             }
 
             var timeMatch = string.Concat(team, $"({item.UctDate})");
-           
+
             var result = string.Concat(group, timeMatch);
             return result;
         }
         private  void DisPlaySchedule(DateTime currentDateTime)
         {
-            
+
             List<MatchesModel> Listmatches = GetScheduleDay(currentDateTime);
             stringResultSchedule = new List<string>();
             foreach (var item in Listmatches)
             {
                 stringResultSchedule.Add(StringDisplaySchedule(item));
-             
+
             }
-        
         }
         private DateTime FormatTimeZoneVietNam(DateTime dateTime)
         {
@@ -177,8 +174,7 @@ namespace BotFootBall.Services
             int currentDayOfWeek = (int)today.DayOfWeek;
             DateTime sunday = today.AddDays(-currentDayOfWeek);
             DateTime monday = sunday.AddDays(1);
-            // If we started on Sunday, we should actually have gone *back*
-            // 6 days instead of forward 1...
+       
             if (currentDayOfWeek == 0)
             {
                 monday = monday.AddDays(-7);
@@ -186,5 +182,67 @@ namespace BotFootBall.Services
             var dates = Enumerable.Range(0, 7).Select(days => monday.AddDays(days)).ToList();
             return dates;
         }
+
+        public async Task<DialogTurnResult> AppointmentSchedule(DateTime currentdateTime, WaterfallStepContext stepContext, CancellationToken cancellation)
+        {
+            DisPlayThumnail(currentdateTime);
+            if (listThumnailCards.Count > 0)
+            {
+                List<Attachment> attachments = new List<Attachment>();
+                foreach (var item in listThumnailCards)
+                {
+                    attachments.Add(item.ToAttachment());
+                }
+                var promOption = new PromptOptions()
+                {
+                    Prompt = new Activity
+                    {
+                        Type = ActivityTypes.Message,
+                        Attachments = attachments
+                    }
+                };
+
+                return await stepContext.PromptAsync("appointmentSchedule", promOption, cancellation);
+            }
+            else
+            {
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text("Không có trận đấu nào hết"), cancellation);
+            }
+            return await stepContext.NextAsync(null, cancellation);
+        }
+        private ThumbnailCard DisplayThumnailCardSchedule(dynamic item)
+        {
+         
+            var group = $"{item.Group}\n\n";       
+               string team = string.Concat($"(Home) {item.HomeTeam} vs", $" {item.AwayTeam}  (Away)\n\n");
+                var timeMatch = string.Concat(team, $"({item.UctDate})");
+                //  var result = string.Concat(group, timeMatch);
+                thumnailCard = new ThumbnailCard()
+                {
+                    Title = group,
+                    Text = timeMatch,
+                    Buttons = new List<CardAction>() { new CardAction() { Title = "Đặt lịch hẹn ", Type = ActionTypes.PostBack, Value = $"{ item.UctDate }" } }
+
+                };
+             
+            return thumnailCard;
+        }
+        private void DisPlayThumnail(DateTime currentDateTime)
+        {
+
+            List<MatchesModel> Listmatches = GetScheduleDay(currentDateTime);
+            listThumnailCards = new List<ThumbnailCard>();
+            foreach (var item in Listmatches)
+            {
+                if (item.FullTime == null)
+                {
+                    listThumnailCards.Add(DisplayThumnailCardSchedule(item));
+                }
+                  
+
+            }
+
+        }
+
     }
 }

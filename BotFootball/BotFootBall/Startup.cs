@@ -1,6 +1,7 @@
 using BotFootBall.Bots;
 using BotFootBall.Controllers;
 using BotFootBall.Dialogs;
+using BotFootBall.Dialogs.Appointment;
 using BotFootBall.Dialogs.Schedule;
 using BotFootBall.Middleware;
 using BotFootBall.Services;
@@ -71,6 +72,7 @@ namespace BotFootBall
             });
             services.AddHttpClient();
             services.AddSingleton<ScheduleDayDialog>();
+            services.AddSingleton<AppointmentDialog>();
             services.AddSingleton<MainDialog>();
             services.AddSingleton<TimersManage>();
             services.AddSingleton<ConcurrentDictionary<string, ConversationReference>>();

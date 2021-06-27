@@ -1,41 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder.Dialogs;
-using Microsoft.Bot.Builder.Dialogs.Choices;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
-using AdaptiveCards;
-using Newtonsoft.Json.Linq;
 using BotFootBall.Dialogs.Schedule;
 using BotFootBall.Models;
 using BotFootBall.Services;
 using System.Globalization;
 using System.Net.Http;
-
+using BotFootBall.Dialogs.Appointment;
 namespace BotFootBall.Dialogs
 {
     public class MainDialog :  ComponentDialog
     {
         private DateTime dateTime;
-        private readonly IHttpClientFactory _factory;
         private readonly ISchedule _schedule;
-        private readonly IStandingService _standingService;
-        private readonly TimersManage _timerManage;
+        private readonly IStandingService _standingService;      
         private readonly ITeamService _teamService;
-        public MainDialog(ScheduleDayDialog scheduleDayDialog, ISchedule schedule,
-                            IStandingService standingService, ITeamService teamService,
-                            TimersManage timerManage, IHttpClientFactory factory) : base(nameof(MainDialog))
+        public MainDialog(ScheduleDayDialog scheduleDayDialog, AppointmentDialog appointmentDialog, ISchedule schedule,
+                            IStandingService standingService, ITeamService teamService
+                          ) : base(nameof(MainDialog))
         {
             _schedule = schedule;
             _standingService = standingService;
             _teamService = teamService;
-            _timerManage = timerManage;
-            _factory = factory;
             AddDialog(new TextPrompt(nameof(TextPrompt)));
             AddDialog(scheduleDayDialog);
+            AddDialog(appointmentDialog);
+            AddDialog(new TextPrompt("appointmentSchedule"));
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), new WaterfallStep[] {
                IntroStepAsync,
                ActStepAsync,
@@ -109,22 +103,22 @@ namespace BotFootBall.Dialogs
                 {
 
                     case "hôm nay":
-
-                        return await stepContext.BeginDialogAsync(nameof(ScheduleDayDialog), null, cancellationToken);
+                      
+                        return  await stepContext.BeginDialogAsync(nameof(ScheduleDayDialog), null, cancellationToken);
+                       
                     case "ngày mai":
                         DateTime dt = DateTime.UtcNow.AddDays(1);
-                        _schedule.DisPlayScheduleByStep(dt, stepContext, cancellationToken);
+                           _schedule.DisPlayScheduleByStep(dt, stepContext, cancellationToken);
                         break;
                     case "trong tuần":
                         _schedule.GetDateTimeOfWeeks().ForEach(dt => _schedule.DisPlayScheduleByStep(dt, stepContext, cancellationToken));
                         break;
                     case "xếp hạng":
                         string group = GROUP.ToUpper() + filter;
-
-                        await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(await _standingService.GetBotStading(group)), cancellationToken);
+                       await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(await _standingService.GetBotStading(group)), cancellationToken);
                         break;
                     case "ngày thi đấu":
-                        _schedule.DisPlayScheduleByStep(dateTime, stepContext, cancellationToken);
+                          _schedule.DisPlayScheduleByStep(dateTime, stepContext, cancellationToken);
                         break;
                     case "đội":
                        ScheduleModel resutl =  await _teamService.GetJsonTeamAsync(team);
@@ -135,9 +129,8 @@ namespace BotFootBall.Dialogs
                             return await stepContext.ReplaceDialogAsync(InitialDialogId, "Xin lỗi,Tôi không tìm thấy đội bóng", cancellationToken);
                         }
                         else
-                        {
-                            bool cotinute = false;
-                            string finish = string.Empty;
+                        {  
+                           string finish = string.Empty;
                             ThumbnailCard thumCard;
                             foreach (var item in resutl.ScheduleMatch)
                             {
@@ -149,7 +142,7 @@ namespace BotFootBall.Dialogs
                                 }
                                 if (item.Status.Equals("SCHEDULED"))
                                 {
-                                    cotinute = true;
+                                   
                                     team = string.Concat($"Chưa thi đấu:\n\n(Home) {item.HomeTeam} vs", $" {item.AwayTeam}  (Away)\n\n");
                                 }else if (item.Status.Equals("FINISHED") && !hasFullTime.Equals(string.Empty))
                                 {
@@ -163,7 +156,7 @@ namespace BotFootBall.Dialogs
 
                                 fullstring += string.Concat(endline, timeMatch);
                             }
-                           
+                    
                                 thumCard = new ThumbnailCard()
                                 {
                                     Title = resutl.teamModel.Name + "-" + resutl.ScheduleMatch[0].Group,
@@ -175,7 +168,8 @@ namespace BotFootBall.Dialogs
                                                "Thắng: " + resutl.teamModel.Won + "\n\n" +
                                                "Hòa: " + resutl.teamModel.Draw + "\n\n" +
                                                "Thua: " + resutl.teamModel.Lost + "\n\n\n\n",
-                                    Text =     "Thông tin trận đấu:\n\n Đã thi đấu:\n\n" + fullstring
+                                    Text =     "Thông tin trận đấu:\n\n Đã thi đấu:\n\n" + fullstring,
+                                                      
                                 };
                             
                             
@@ -183,11 +177,9 @@ namespace BotFootBall.Dialogs
 
                         }
                         break;
-                    case "timer":
-                        _timerManage.AddTimer(_factory ,stepContext.Context.Activity.GetConversationReference(), 5);
-                        await stepContext.Context.SendActivityAsync($"Starting a 5s timer");
-                        
-                        break;
+                    case "đặt hẹn":
+                        return await stepContext.BeginDialogAsync(nameof(AppointmentDialog), null, cancellationToken);
+                  
                     default:
                         return await stepContext.ReplaceDialogAsync(InitialDialogId, "Xin lỗi,Tôi không hiểu", cancellationToken);
 
